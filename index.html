@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENV113 – Revision for Test 2 Quiz</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1d2330; --muted: #667085;
+    --border: #e3e6eb; --accent: #2f5bea; --accent-soft: #eaf0ff;
+    --ok: #12805c; --ok-soft: #e6f6ef; --bad: #c4321c; --bad-soft: #fdecea;
+    --note: #8a5a00; --note-soft: #fff6e0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --card: #1a1e26; --text: #e7e9ee; --muted: #9aa3b2;
+      --border: #2b313c; --accent: #7c9bff; --accent-soft: #232c45;
+      --ok: #4cc79a; --ok-soft: #173328; --bad: #ff7a66; --bad-soft: #3a1f1b;
+      --note: #f0c060; --note-soft: #33290f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+         background: var(--bg); color: var(--text); line-height: 1.55; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 1.6rem; }
+  header p { margin: 0; color: var(--muted); font-size: .92rem; }
+  .disclaimer { margin: 14px 0 20px; padding: 10px 14px; border-radius: 10px;
+                background: var(--note-soft); color: var(--note); font-size: .85rem; font-weight: 600; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; position: sticky; top: 0; z-index: 5;
+        background: var(--bg); padding: 10px 0; }
+  nav button { border: 1px solid var(--border); background: var(--card); color: var(--text);
+               padding: 8px 14px; border-radius: 999px; cursor: pointer; font-size: .9rem; }
+  nav button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  section { display: none; }
+  section.active { display: block; }
+  h2 { font-size: 1.2rem; margin: 18px 0 12px; }
+  .q { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+       padding: 14px 16px; margin-bottom: 12px; }
+  .q.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .q.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .q .num { font-weight: 700; color: var(--accent); margin-right: 6px; }
+  .opts { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .opts.inline { flex-direction: row; flex-wrap: wrap; gap: 10px; }
+  .opts label { display: flex; gap: 8px; align-items: flex-start; padding: 7px 10px;
+                border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: var(--card); }
+  .opts label:hover { border-color: var(--accent); }
+  .opts input { margin-top: 4px; }
+  .opts label.is-answer { border-color: var(--ok); font-weight: 600; }
+  .feedback { margin-top: 10px; font-size: .9rem; display: none; }
+  .checked .feedback { display: block; }
+  .feedback .ok { color: var(--ok); font-weight: 700; }
+  .feedback .bad { color: var(--bad); font-weight: 700; }
+  .feedback .note { display: block; margin-top: 4px; color: var(--note); font-size: .82rem; }
+  select { font: inherit; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--border);
+           background: var(--card); color: var(--text); max-width: 100%; }
+  .fill select { margin: 2px 2px; border-color: var(--accent); background: var(--accent-soft); }
+  .match-row { display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px; align-items: center; }
+  .match-row select { width: 100%; }
+  .bank { background: var(--card); border: 1px dashed var(--border); border-radius: 12px;
+          padding: 12px 14px; font-size: .88rem; color: var(--muted); margin-bottom: 14px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 18px 0; }
+  .actions button { border: none; padding: 10px 18px; border-radius: 10px; cursor: pointer;
+                    font-size: .95rem; font-weight: 600; }
+  .btn-check { background: var(--accent); color: #fff; }
+  .btn-reset { background: var(--border); color: var(--text); }
+  .score { font-weight: 700; font-size: 1rem; }
+  @media (max-width: 560px) { .match-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Revision for Test 2 – ENV113</h1>
+    <p>25-11-2026</p>
+  </header>
+  <div class="disclaimer">DISCLAIMER: THE FOLLOWING QUESTIONS HAS BEEN AIMED FOR TRAINING, NONE OF IT MAY SHOW IN THE TEST</div>
+
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const TF = [
+  ["Geographic Information System (GIS) is the collection of information about an object or phenomenon or an area from a distance and without being physically there.", false, "Remote sensing (RS)"],
+  ["Polar satellites, circling the Earth in orbits normal to the equator, are usually used to monitor the Earth, while geostationary satellites, moving around the earth with the same speed, are used for communications and climatic studies.", true],
+  ["Satellites send images that are ready to use after addition of colors and minor data.", false, "digital data"],
+  ["Remote sensing is a system of integrated computer-based tools for end-to-end processing (capture, storage, retrieval, analysis and display) of data using location on the earth’s surface for interrelation in support of operations management, decision making and science.", false, "Geographic Information System (GIS)"],
+  ["The geography of tectonic plates is entirely different from the geography of continents and oceans. A tectonic plate can comprise a whole continent and parts of oceans, a part of a continent or a part of an ocean.", true],
+  ["The distribution of volcanoes coincide with all kinds of plate boundaries, while the the distribution of earthquakes is only limited to the convergent and divergent plates boundaries.", false, "the opposite"],
+  ["Volcanoes and earthquakes are evenly distributed over the Earth’s surface.", false, "concentrated along plate boundaries."],
+  ["The earthquake’s epicenter is an area inside the Earth from which the energy was released.", false, "focus"],
+  ["The primary waves are the most dangerous earthquake wave because it distroys buildings, bridges and foundations.", false, "surface"],
+  ["Some area on Earth are absolutely quiet; in which no earthquakes occur.", false, "No"],
+  ["Human can induce earthquakes by building huge dams, injecting liquid wastes in the ground and performing nuclear testing.", true],
+  ["The epicenter of an earthquake can be accurately determined by examining the records of, at least, three seismological stations.", true],
+  ["The modern and advanced earthquake-recording devices provide the possibility of predicting an Earth movement within an area during a certain period of time.", true],
+  ["The seismogram is the earthquake-measuring device, while the seismograph is the chart on which earthquake waves are recorded.", false, "the opposite"],
+  ["Opposite to what used to happen in the past, earthquakes now cause larger number of death and lower value of property damage.", false, "Lower , higher"],
+  ["Some volcanic activities can occur within a tectonic plate as a result of what is known as a hot-spot activity.", true],
+  ["Active volcanoes on the ocean floor produce felsic magma rich in silica and gases.", false, "Mafic , poor"],
+  ["Volcanic activities involving felsic magma are violent and accociated loud explosions and emission of dense volcanic dust.", true],
+  ["The cones of shield volcanoes are broad and gentle. These cones grow from the ocean floor to form volcanic islands such as Hawaii Islands.", true],
+  ["The negative environmental impacts of volcanic activities are dust clouds, global warming and ozone depletion.", true],
+  ["River water moves under the influence of gravity and seas and oceans are its final destination.", true],
+  ["Stream channels receive their water from rain and ground water.", true],
+  ["In laminar flow, water molecules move in straight lines parallel without mixing but in turbulent flow , water molecules move randomly in circle – like pattern.", true],
+  ["Velocity of water at down stream is greater than velocity of water at up stream.", true],
+  ["Recharge of ground water is the main purpose of constructing dams in the UAE.", true],
+  ["Movement of weather front mechanism is responsible for the winter rain in the UAE while the convective processes is responsible for summer rain.", true],
+  ["Hurricanes develop over ocean while tornadoes mainly develop inland.", true]
+];
+
+/* [question, options (with letters as printed), index of correct option, notMarkedInSheet?] */
+const MCQ = [
+  ["Factors controlling streamvelociy are:", ["a. Gradient","b. Channel shape, size and roughness","c. Discharge.","b. All the above"], 3],
+  ["The geologic work of rivers includes:", ["a. Erosion","b. Transportation","c. Deposition","d. All of the above"], 3],
+  ["Rivers transport sediments in the following forms", ["a. Bed load","b. Saltating particles","c. Suspended load","d. Dissolved ions","b. All of the above"], 4],
+  ["Major Factors controlling river discharge are", ["a. Area of drainage basin","b. Climatic condition","c. Vegetation cover","d. All of the above"], 3],
+  ["Causes of mass wasting are:", ["a. Volcanoes","b. Earthquakes","c. Climatic changes","d. Human activities","b. All of the above"], 4],
+  ["Mechanisms of Avalanches are:", ["a. Loss of cohesion","b. Anthropogenic","c. Tectonic Activity","d. Volcanic activity","b. All of the above"], 4],
+  ["Cloud-Formation Mechanismsf:", ["a. Movement of weather front","b. Convective processes","c. Orographic effects","b. All of the above"], 3],
+  ["The damage that hurricanes inflict is caused by:", ["a. high wind speeds","b. heavy rainfall","c. storm surge","d. Tornadoes","e. All of the above"], 4],
+  ["The water resources that are completely missing in the Arabian Gulf Countries are:", ["a. Rivers","b. Lakes","c. Water in the atmosphere","d. Groundwater"], 0],
+  ["Flash floods:", ["a. Normal river flooding","b. Fast moving water in rivers","c. Water breaking up barriers and dams","d. Accumulation of a large volume of water in a very short period of time"], 3],
+  ["Dams in Asia, Europe and United States to:", ["a. Inbound water and generate electricity","b. Change of stream direction","c. Recharge of groundwater","d. All of the above"], 0],
+  ["The best method to fix sand dunes is:", ["a. Coverage with large pebbles","b. Cultivation","c. Application of tar","d. Spray of water"], 1],
+  ["conventional water resources in the UAE are", ["a. Seasonal floods","b. Springs","c. Falajes","d. Groundwater","e. All of the above"], 4, true],
+  ["Water problems facing the water resources in the UAE are:", ["a. Depletion","b. Salt-water intrusion","c. Water quality","d. All of the above"], 3, true],
+  ["Spring water in the UAE used for :", ["a. Therapeutic treatment","b. Drinking","c. Watering plants","d. Non of these"], 0, true],
+  ["Electromagnetic spectrum used in remote sensing investigations:", ["a. Visible spectrum","b. Ultraviolet and infrared radiation","c. Microwave","d. All of the above"], 3, true],
+  ["Components of the GIS:", ["a. Data","b. Software and hardware","c. Processes and people","d. All of the above"], 3],
+  ["Steps of preparing a GIS model:", ["a. Data entry, processing, analysis and display","b. Material preparation, design and construction","c. Writing the code, testing and results","d. All of the above"], 0],
+  ["The mechanism that moves tectonic plates:", ["a. Magma generation and upward movement","b. Geologic structures","c. Convection currents","d. All of the above"], 2],
+  ["The primary seismic waves are:", ["a. Longitudinal waves","b. Transverse waves","c. Surface waves","d. All of these"], 0],
+  ["Earthquakes are classified based on their origin into:", ["a. Tectonic, volcanic and human related","b. Shallow, intermediate and deep","c. Minor, moderate and major","d. All of the above"], 0],
+  ["Phenomena associated with earthquakes:", ["a. Faulting","b. Earth movement","c. Damage","d. All of the these"], 3],
+  ["Evidence of an approaching earthquake:", ["a. Abnormal animal behaviour","b. Curvature of land surface","c. Fluctuation of groundwater level","d. All of the above"], 3],
+  ["The most abundant gas produced by volcanoes:", ["a. CO₂","b. H₂O","c. SO₂","d. All of the above"], 1, true],
+  ["Black smokers are connected to:", ["a. Convergent plate boundaries","b. Transform faults","c. Divergent plate boundaries","d. All plate boundaries"], 2, true],
+  ["The danger associated with plate movement results from:", ["a. Floods","b. Hurricanes","c. Earthquakes","d. All of the above"], 2],
+  ["The damage resulting from an earthquakes depends basically on:", ["a. Timing","b. Geologic location","c. Preparedness and emergency plan","d. All of the above"], 3],
+  ["The Violent volcanic eruption is associated with:", ["a. Mafic magma","b. Andesitic magma","c. Felsic magma","d. All types of magmas"], 2],
+  ["The caus(s) of Tsunami:", ["a. Volcanic eruption","b. Marine earthquakes","c. Meteorite impact","d. All of the above"], 3],
+  ["The mechanism that moves tectonic plates:", ["a. Magma generation and upward movement","b. Geologic structures","c. Convection currents","d. All of the above"], 2, "dup"],
+  ["The primary seismic waves are:", ["a. Longitudinal waves","b. Transverse waves","c. Surface waves","d. All of the above"], 0, "dup"],
+  ["Earthquakes are classified based on their origin into:", ["a. Tectonic, volcanic and human related","b. Shallow, intermediate and deep","c. Minor, moderate and major","d. All of the above"], 0, "dup"]
+];
+
+const GROUP_B = [
+  "Power of an earthquake","Study of Earth’s surface","The most dangerous earthquake waves",
+  "Severe sea waves distroy coastal areas","Longitudinal, compressional waves","A chart showing seismic waves",
+  "A product of volcanic activity","Volcanoes related to hot spots","Earthquake intensity","Weather and climate",
+  "Violent volcanic eruption","Belts of earthquakes a volcanoes","Earthquake measuring device",
+  "Collection, management and analysis of data","Quiet volcanic eruption","Canada"
+];
+/* [Group A term, correct Group B number] */
+const MATCH = [
+  ["Felsic magma",11],["Hawaii islands",8],["Geostationary satellites",10],["Richter scale",1],["Mircalli",9],
+  ["GIS",14],["Seismograph",13],["Plate Boundaries",12],["Lava",7],["Mafic magma",15],["Primary waves",5],
+  ["Tsunami",4],["Seismogram",6],["Surface waves",3],["Landsat satellite",2],["Ice storm",16]
+];
+
+const BANK = ["Richter","black smokers","hydrograph","covers large areas","ozone hole","repetitive lock at certain areas",
+  "seismogram","older","Japan","works under different conditions","global warming","Indonesia","Saint Andreas fault",
+  "northwest","southeast","convergent","layers","divergent","transform fault","greenhouse","longitude","latitude",
+  "dust and black clouds","shallow","intermediate","deep","eastern region","sequentional photography","lava",
+  "vlocanic bombs and ash","elevation","central region","mafic","felsic","andesitic","Malaysia","airplanes",
+  "western region","gases","Pigeons","western coast of southern America","Mercalli","Indea","ballons",
+  "satellites and spacecrafts","discharge","graded river","alluvial fans","deltas"];
+
+/* {word} = blank. anyOrder = blanks may be filled in any order */
+const FILL = [
+  ["Gathering of information in remote sensing techniques developed from the use of {Pigeons} to the use of {ballons} to the use {satellites and spacecrafts}."],
+  ["Among the advantages of remote sensing techniques are {covers large areas}, {repetitive lock at certain areas} and {works under different conditions}.", true],
+  ["The {sequentional photography} in remote sensing enables monitoring of current events such as forest fires, earthquakes, floods and wars as it happen and around the clock."],
+  ["In GIS the data and information are stored as consecutive {layers} each of which include certain information. The results are analysed and displayed by projection of all information on a single unified map."],
+  ["The plate boundary splitting Iceland into to parts belongs to the {divergent} plate boundaries."],
+  ["The global positioning system (GPS) is used to provide information on the {longitude}, {latitude}, and {elevation} of any point on Earth.", true],
+  ["{Indonesia} is actually made up of 130 active volcanoes, which makes it the largest volcanic country in the world."],
+  ["The most active area in the United Arab Emirates with respects to earthquakes is {eastern region}."],
+  ["{black smokers} originate as a result of volcanic activity at the ocean and sea floors."],
+  ["{Saint Andreas fault} of California in the United States is the most famous transform fault on Earth. Along this fault the Pacific plate moves in {northwest} direction relative to the north american plate."],
+  ["The most violent earthquakes the Earth witnesses are those associated with the movement of {convergent} Plate boundaries."],
+  ["The {mafic} magma is characterized by its low contents of silican and dissolved gases."],
+  ["The products of volcanic activities include {lava}, {vlocanic bombs and ash}.", true],
+  ["The negative environmental impacts of volcanoes include {greenhouse} gases, {dust and black clouds} and contribution to {ozone hole}."],
+  ["The magnitude of an earthquake is measured by {Richter} scale while its intensity is estimated by {Mercalli} scale."],
+  ["{discharge} is the amount of water moving through the cross section of stream channel at certain locationduring a unit time."],
+  ["{graded river} is the river that has the right gradient and channel characteristic necessary to maintain its velocity and sediment carrying capacity."],
+  ["{alluvial fans} form inland while {deltas} form within a water body at the river mouth."],
+  ["{hydrograph}s illustrate the possibility of floods."]
+];
+
+/* ---------------- RENDER ---------------- */
+const SECTIONS = [
+  { id: "tf",    title: "1- Answer by True or False", render: renderTF },
+  { id: "mcq",   title: "2- Draw a circle around the symbol of the correct answer only in each of the following statements.", render: renderMCQ },
+  { id: "match", title: "3- Match between the words from table A and the ones from table B", render: renderMatch },
+  { id: "fill",  title: "4. Fill the blank with the right word from the following", render: renderFill }
+];
+const NAV_LABELS = ["1 · True / False", "2 · Multiple Choice", "3 · Matching", "4 · Fill the Blank"];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function radioGroup(name, options, inline) {
+  return `<div class="opts${inline ? " inline" : ""}">` + options.map((o, i) =>
+    `<label data-i="${i}"><input type="radio" name="${name}" value="${i}"><span>${esc(o)}</span></label>`).join("") + `</div>`;
+}
+
+function renderTF(el) {
+  el.innerHTML += TF.map((q, i) => `
+    <div class="q" data-type="tf" data-i="${i}">
+      <div><span class="num">${i + 1})</span>${esc(q[0])}</div>
+      ${radioGroup("tf" + i, ["True", "False"], true)}
+      <div class="feedback"></div>
+    </div>`).join("");
+}
+function renderMCQ(el) {
+  el.innerHTML += MCQ.map((q, i) => `
+    <div class="q" data-type="mcq" data-i="${i}">
+      <div><span class="num">${i + 1}.</span>${esc(q[0])}</div>
+      ${radioGroup("mcq" + i, q[1])}
+      <div class="feedback"></div>
+    </div>`).join("");
+}
+function renderMatch(el) {
+  const opts = `<option value="">— choose from Group (B) —</option>` +
+    GROUP_B.map((b, i) => `<option value="${i + 1}">${i + 1}. ${esc(b)}</option>`).join("");
+  el.innerHTML += MATCH.map((m, i) => `
+    <div class="q" data-type="match" data-i="${i}">
+      <div class="match-row">
+        <div><span class="num">${i + 1}.</span><strong>${esc(m[0])}</strong></div>
+        <select>${opts}</select>
+      </div>
+      <div class="feedback"></div>
+    </div>`).join("");
+}
+function renderFill(el) {
+  const opts = `<option value="">______</option>` + BANK.map(w => `<option>${esc(w)}</option>`).join("");
+  el.innerHTML += `<div class="bank"><strong>Word bank:</strong> ${BANK.map(esc).join(", ")}.</div>`;
+  el.innerHTML += FILL.map((f, i) => {
+    const html = esc(f[0]).replace(/\{([^}]+)\}/g, () => `<select>${opts}</select>`);
+    return `<div class="q fill" data-type="fill" data-i="${i}">
+      <div><span class="num">${i + 1}.</span>${html}</div>
+      <div class="feedback"></div>
+    </div>`;
+  }).join("");
+}
+
+/* ---------------- CHECK ---------------- */
+function checkQuestion(div) {
+  const type = div.dataset.type, i = +div.dataset.i, fb = div.querySelector(".feedback");
+  let ok = false, msg = "", note = "";
+  if (type === "tf") {
+    const sel = div.querySelector("input:checked");
+    const ans = TF[i][1];
+    ok = sel && (sel.value === "0") === ans;
+    msg = `Answer: <strong>${ans ? "True ✓" : "False ✗"}</strong>` + (TF[i][2] ? ` — Correction: <em>${esc(TF[i][2])}</em>` : "");
+    div.querySelectorAll("label").forEach(l => l.classList.toggle("is-answer", (+l.dataset.i === 0) === ans));
+  } else if (type === "mcq") {
+    const sel = div.querySelector("input:checked"), q = MCQ[i];
+    ok = sel && +sel.value === q[2];
+    msg = `Answer: <strong>${esc(q[1][q[2]])}</strong>`;
+    if (q[3] === true) note = "This answer is not marked on the revision sheet.";
+    if (q[3] === "dup") note = "Repeated question on the revision sheet.";
+    div.querySelectorAll("label").forEach(l => l.classList.toggle("is-answer", +l.dataset.i === q[2]));
+  } else if (type === "match") {
+    const v = div.querySelector("select").value, ans = MATCH[i][1];
+    ok = +v === ans;
+    msg = `Answer: <strong>${ans}. ${esc(GROUP_B[ans - 1])}</strong>`;
+  } else if (type === "fill") {
+    const answers = [...FILL[i][0].matchAll(/\{([^}]+)\}/g)].map(m => m[1].toLowerCase());
+    const given = [...div.querySelectorAll("select")].map(s => s.value.toLowerCase());
+    ok = FILL[i][1]
+      ? [...given].sort().join("|") === [...answers].sort().join("|")
+      : given.join("|") === answers.join("|");
+    msg = `Answer: <strong>${answers.map(a => BANK.find(b => b.toLowerCase() === a)).map(esc).join(" / ")}</strong>`;
+  }
+  div.classList.add("checked");
+  div.classList.toggle("correct", !!ok);
+  div.classList.toggle("wrong", !ok);
+  fb.innerHTML = `<span class="${ok ? "ok" : "bad"}">${ok ? "Correct!" : "Not quite."}</span> ${msg}` +
+                 (note ? `<span class="note">${note}</span>` : "");
+  return !!ok;
+}
+
+function build() {
+  const nav = document.getElementById("nav"), main = document.getElementById("main");
+  SECTIONS.forEach((s, idx) => {
+    const b = document.createElement("button");
+    b.textContent = NAV_LABELS[idx];
+    b.onclick = () => show(idx);
+    nav.appendChild(b);
+
+    const sec = document.createElement("section");
+    sec.id = s.id;
+    sec.innerHTML = `<h2>${esc(s.title)}</h2>`;
+    s.render(sec);
+    sec.insertAdjacentHTML("beforeend", `
+      <div class="actions">
+        <button class="btn-check">Check answers</button>
+        <button class="btn-reset">Reset</button>
+        <span class="score"></span>
+      </div>`);
+    sec.querySelector(".btn-check").onclick = () => {
+      const qs = [...sec.querySelectorAll(".q")];
+      const right = qs.filter(checkQuestion).length;
+      sec.querySelector(".score").textContent = `Score: ${right} / ${qs.length}`;
+    };
+    sec.querySelector(".btn-reset").onclick = () => {
+      sec.querySelectorAll("input").forEach(x => x.checked = false);
+      sec.querySelectorAll("select").forEach(x => x.value = "");
+      sec.querySelectorAll(".q").forEach(q => { q.classList.remove("checked", "correct", "wrong");
+        q.querySelectorAll(".is-answer").forEach(l => l.classList.remove("is-answer")); });
+      sec.querySelector(".score").textContent = "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    main.appendChild(sec);
+  });
+  show(0);
+}
+function show(idx) {
+  document.querySelectorAll("nav button").forEach((b, i) => b.classList.toggle("active", i === idx));
+  document.querySelectorAll("section").forEach((s, i) => s.classList.toggle("active", i === idx));
+  window.scrollTo({ top: 0 });
+}
+build();
+</script>
+</body>
+</html>
